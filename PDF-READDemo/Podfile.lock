@@ -1,0 +1,20 @@
+PODS:
+  - Masonry (1.1.0)
+  - PDF-READ (0.0.1):
+    - Masonry
+
+DEPENDENCIES:
+  - PDF-READ
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Masonry
+    - PDF-READ
+
+SPEC CHECKSUMS:
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  PDF-READ: af11acd131b7188385bfd22c57fcc9111b121494
+
+PODFILE CHECKSUM: a7182a74735fe74b538fba2a09e7184a513fff4d
+
+COCOAPODS: 1.7.0
