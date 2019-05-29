@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import <PDFReadViewController.h>
 #import <Masonry.h>
+#import <QuickLook/QuickLook.h>
 
 @interface ViewController ()
 
@@ -43,17 +44,33 @@
 - (void)BtnClick:(UIButton *)sender{
     
     PDFReadViewController *vc = [[PDFReadViewController alloc]init];
-    
+
     //    vc.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    
+
     //    vc.PDFPagingEnabled = YES;
-    
+
     //    vc.item = @"2"; //
-    
-    vc.fileUrl = @"http://172.16.9.159:8888/002.pdf";
-    
+
+//    vc.fileUrl = @"http://172.16.9.159:8888/002.pdf";
+
     [self.navigationController pushViewController:vc animated:YES];
+//
+//    QLPreviewController *previewController = [[QLPreviewController alloc] init];
+//    previewController.dataSource = self;
+//    previewController.delegate = self;
+//    [self presentViewController:previewController animated:YES completion:nil];
+    
 }
 
+- (NSInteger)numberOfPreviewItemsInPreviewController:(QLPreviewController *)controller {
+    return 1;
+}
+
+- (id <QLPreviewItem>)previewController:(QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
+//    NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+//    NSString *fileName = @"保存时候的文件名，一般是url地址的最后面的文件名";
+//    NSString *filePath = [documentPath stringByAppendingPathComponent:fileName];
+    return [NSURL fileURLWithPath:@"http://172.16.9.159:8888/002.pdf"];
+}
 
 @end

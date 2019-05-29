@@ -11,6 +11,9 @@
 #import "CollectionViewCell.h"//导入自定义的CollectionViewCell
 #import "RiderPDFView.h"//导入展示PDF文件内容的View
 
+//RGB Color
+#define RGBCOLOR(r,g,b,a) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:a]
+
 static NSString *cellIdentifier = @"CollectionViewCell";
 
 @interface PDFReadViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate,collectionCellDelegate>//遵守协议
@@ -31,6 +34,8 @@ static NSString *cellIdentifier = @"CollectionViewCell";
 @property (assign, nonatomic) CGFloat TopHeight;
 
 @property (strong, nonatomic) UICollectionViewFlowLayout *layout;
+
+@property (nonatomic,strong) UIView *noDataView;
 
 @end
 
@@ -132,6 +137,48 @@ static NSString *cellIdentifier = @"CollectionViewCell";
     
 }
 
+/**
+ 默认的占位图
+ */
+- (void)xy_defaultNoDataViewWithImage:(UIImage *)image message:(NSString *)message color:(UIColor *)color offsetY:(CGFloat)offset {
+
+    //  计算位置, 垂直居中, 图片默认中心偏上.
+    CGFloat sW = self.view.bounds.size.width;
+    CGFloat cX = sW / 2;
+    CGFloat cY = self.view.bounds.size.height * (1 - 0.618) + offset;
+    CGFloat iW = image.size.width;
+    CGFloat iH = image.size.height;
+    
+    //  图片
+    UIImageView *imgView = [[UIImageView alloc] init];
+    imgView.frame        = CGRectMake(cX - iW / 2, cY - iH / 2, iW, iH);
+    imgView.image        = image;
+    
+    //  文字
+    UILabel *label       = [[UILabel alloc] init];
+    label.numberOfLines  = 0;
+    label.font           = [UIFont systemFontOfSize:15];
+    label.textColor      = color;
+    label.text           = message;
+    label.textAlignment  = NSTextAlignmentCenter;
+//    label.frame          = CGRectMake(0, CGRectGetMaxY(imgView.frame) + 24, sW, label.font.lineHeight);
+    
+    //  视图
+    while (self.noDataView.subviews.count) {
+        [self.noDataView.subviews.lastObject removeFromSuperview];
+    }
+    [self.noDataView addSubview:imgView];
+    [self.noDataView addSubview:label];
+    
+    [label mas_makeConstraints:^(MASConstraintMaker *make) {
+        
+        make.left.mas_equalTo(0);
+        make.top.mas_equalTo(CGRectGetMaxY(imgView.frame) + 24);
+        make.width.mas_equalTo(sW);
+    }];
+}
+
+
 - (void)readPDF:(NSString *)pdfName{
     
 //    NSString *filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
@@ -147,17 +194,37 @@ static NSString *cellIdentifier = @"CollectionViewCell";
     
     [self skipPage];
 
-    if (self.item.length > 0) {
-        
-        [self skipPage];
+    self.CollectionView.backgroundColor = [UIColor whiteColor];
 
-        self.numLable.text = [NSString stringWithFormat:@"%d of %lu",[self.item intValue]+1,(unsigned long)self.dataArray.count];
+    self.CollectionView.backgroundView = nil;
+
+    if (self.dataArray.count > 0) {
+        
+        if (self.item.length > 0) {
+            
+            [self skipPage];
+            
+            self.numLable.text = [NSString stringWithFormat:@"%d of %lu",[self.item intValue]+1,(unsigned long)self.dataArray.count];
+        }else{
+            
+            self.numLable.text = [NSString stringWithFormat:@"%@ of %lu",@"1",(unsigned long)self.dataArray.count];
+        }
+        
+        [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
+
     }else{
         
-        self.numLable.text = [NSString stringWithFormat:@"%@ of %lu",@"1",(unsigned long)self.dataArray.count];
+        self.numLable.hidden = YES;
+        
+        self.CollectionView.backgroundColor = RGBCOLOR(230, 230, 230, 1);
+        
+        self.noDataView = [[UIView alloc] init];
+        
+        [self xy_defaultNoDataViewWithImage:nil message:[NSString stringWithFormat:@"%@\nPDF doument",(self.navigationItem.title?self.navigationItem.title:@"")] color:RGBCOLOR(153, 153, 153, 1) offsetY:0];
+
+        self.CollectionView.backgroundView = self.noDataView;
+        
     }
-    
-    [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
 
 }
 
@@ -234,17 +301,21 @@ static NSString *cellIdentifier = @"CollectionViewCell";
 
     }
 
-    if(pdfData == nil){
-        
-        return YES;
-    }
     CFDataRef dataRef = (__bridge_retained CFDataRef)(pdfData);
 
     CGDataProviderRef proRef = CGDataProviderCreateWithCFData(dataRef);
     CGPDFDocumentRef pdfRef = CGPDFDocumentCreateWithProvider(proRef);
 
     CGDataProviderRelease(proRef);
+    
+    if (dataRef == nil) {
+    
+        return nil;
+    
+    }
+    
     CFRelease(dataRef);
+
 
     return pdfRef;
     
@@ -254,10 +325,6 @@ static NSString *cellIdentifier = @"CollectionViewCell";
 
 - (void)getDataArrayValue {
     
-    NSLog(@"--%@",_docRef);
-    if (_docRef) {
-        
-    }
     size_t totalPages = CGPDFDocumentGetNumberOfPages(_docRef);//获取总页数
 
     self.totalPage= (int)totalPages;//给全局变量赋值
@@ -330,6 +397,7 @@ static NSString *cellIdentifier = @"CollectionViewCell";
         }
     }
     
+
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
@@ -340,7 +408,7 @@ static NSString *cellIdentifier = @"CollectionViewCell";
         
     }];
     
-    [self performSelector:@selector(delayMethod) withObject:nil afterDelay:2.0];
+    [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
 
 }
 
