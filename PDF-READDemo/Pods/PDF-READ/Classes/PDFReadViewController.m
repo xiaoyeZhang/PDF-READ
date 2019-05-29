@@ -234,6 +234,10 @@ static NSString *cellIdentifier = @"CollectionViewCell";
 
     }
 
+    if(pdfData == nil){
+        
+        return YES;
+    }
     CFDataRef dataRef = (__bridge_retained CFDataRef)(pdfData);
 
     CGDataProviderRef proRef = CGDataProviderCreateWithCFData(dataRef);
@@ -250,6 +254,10 @@ static NSString *cellIdentifier = @"CollectionViewCell";
 
 - (void)getDataArrayValue {
     
+    NSLog(@"--%@",_docRef);
+    if (_docRef) {
+        
+    }
     size_t totalPages = CGPDFDocumentGetNumberOfPages(_docRef);//获取总页数
 
     self.totalPage= (int)totalPages;//给全局变量赋值
@@ -322,8 +330,6 @@ static NSString *cellIdentifier = @"CollectionViewCell";
         }
     }
     
-    [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
-
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
@@ -334,6 +340,8 @@ static NSString *cellIdentifier = @"CollectionViewCell";
         
     }];
     
+    [self performSelector:@selector(delayMethod) withObject:nil afterDelay:2.0];
+
 }
 
 - (void)delayMethod{

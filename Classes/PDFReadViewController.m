@@ -322,7 +322,6 @@ static NSString *cellIdentifier = @"CollectionViewCell";
         }
     }
     
-    [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
 
 }
 
@@ -334,6 +333,8 @@ static NSString *cellIdentifier = @"CollectionViewCell";
         
     }];
     
+    [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
+
 }
 
 - (void)delayMethod{
